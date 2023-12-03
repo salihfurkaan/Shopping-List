@@ -3,7 +3,7 @@ A basic shopping list Android application
 
 ---
 
-A basic shopping list application in the way of being an Android developer.
+A basic shopping list application using Jetpack Compose.
 
 
 
