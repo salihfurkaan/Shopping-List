@@ -1,6 +1,11 @@
 package com.example.shoppinglist.ui.theme
 
+import android.Manifest
+import android.app.Activity
 import android.content.Context
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -10,7 +15,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.paddingFrom
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -36,11 +40,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
 import androidx.navigation.NavController
 import com.example.shoppinglist.LocationUtils
 import com.example.shoppinglist.LocationViewModel
+import com.example.shoppinglist.MainActivity
 
-        data class ShoppingItem(val id:Int,
+data class ShoppingItem(val id:Int,
                                 var name:String,
                                 var quantity:Int,
                                 var isEditing:Boolean = false,
@@ -61,11 +67,32 @@ fun ShoppingListApp(
     var itemName by remember{ mutableStateOf("") }
     var itemQuantity by remember{ mutableStateOf("") }
 
+    val requestPermissionLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestMultiplePermissions(), onResult = {
+        permissions ->
+            if(permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true && permissions[Manifest.permission.ACCESS_COARSE_LOCATION]==true){
+                locationUtils.requestLocationUpdates(viewModel)
+            }else{
+                val reqPerm = ActivityCompat.shouldShowRequestPermissionRationale(
+                    context as MainActivity,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) || ActivityCompat.shouldShowRequestPermissionRationale(context , Manifest.permission.ACCESS_COARSE_LOCATION)
+
+                if(reqPerm){
+                    Toast.makeText(context, "Location Permission is required for this feature to work", Toast.LENGTH_LONG).show()
+                }else{
+                    Toast.makeText(context, "Location Permission is required for this feature to work. Please enable it in Android settings", Toast.LENGTH_LONG).show()
+                }
+
+            }
+    })
+
+
 
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center
     ){
+
         Button(onClick = {showDialog=true}, modifier= Modifier.align(Alignment.CenterHorizontally)) {
             Text("Add Item")
         }
@@ -142,6 +169,21 @@ fun ShoppingListApp(
                                 singleLine = true,
                                 modifier = Modifier.padding(8.dp)
                             )
+                            Button(onClick = {
+                                if(locationUtils.hasLocationPermission(context)){
+                                    locationUtils.requestLocationUpdates(viewModel)
+                                    navController.navigate(("locationscreen")){
+                                        this.launchSingleTop
+                                    }
+                                }else{
+                                    requestPermissionLauncher.launch(arrayOf(
+                                        Manifest.permission.ACCESS_FINE_LOCATION,
+                                        Manifest.permission.ACCESS_COARSE_LOCATION
+                                    ))
+                                }
+                            }) {
+                                Text("Address")
+                            }
                         }
                     }
             )
@@ -206,7 +248,9 @@ fun ShoppingListItem(item: ShoppingItem,
             ),
             horizontalArrangement =  Arrangement.SpaceBetween
     ){
-        Column (modifier = Modifier.weight(1f).padding(8.dp)){
+        Column (modifier = Modifier
+            .weight(1f)
+            .padding(8.dp)){
             Row{
                 Text(text = item.name, modifier=Modifier.padding(8.dp))
                 Text("Qty: ${item.quantity}", modifier=Modifier.padding(8.dp))
