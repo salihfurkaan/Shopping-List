@@ -1,9 +1,8 @@
 # Shopping-List
-A basic shopping list Android application
+A basic shopping list application using Jetpack Compose.
 
 ---
 
-A basic shopping list application using Jetpack Compose.
 
 
 
