@@ -60,7 +60,8 @@ fun ShoppingListApp(
     locationUtils : LocationUtils,
     viewModel : LocationViewModel,
     navController: NavController,
-    context : Context
+    context : Context,
+    address : String
 ){
     var sItems by remember { mutableStateOf(listOf<ShoppingItem>()) }
     var showDialog by remember { mutableStateOf(false)}
