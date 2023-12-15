@@ -1,5 +1,6 @@
 package com.example.shoppinglist.ui.theme
 
+import android.content.Context
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -18,6 +19,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -34,15 +36,26 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.example.shoppinglist.LocationUtils
+import com.example.shoppinglist.LocationViewModel
 
-data class ShoppingItem(val id:Int,
-                        var name:String,
-                        var quantity:Int,
-                        var isEditing:Boolean = false)
+        data class ShoppingItem(val id:Int,
+                                var name:String,
+                                var quantity:Int,
+                                var isEditing:Boolean = false,
+                                var address : String ="")
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ShoppingListApp(){
+fun ShoppingListApp(
+    locationUtils : LocationUtils,
+    viewModel : LocationViewModel,
+    navController: NavController,
+    context : Context
+){
     var sItems by remember { mutableStateOf(listOf<ShoppingItem>()) }
     var showDialog by remember { mutableStateOf(false)}
     var itemName by remember{ mutableStateOf("") }
@@ -193,8 +206,21 @@ fun ShoppingListItem(item: ShoppingItem,
             ),
             horizontalArrangement =  Arrangement.SpaceBetween
     ){
-        Text(text = item.name, modifier=Modifier.padding(8.dp))
-        Text("Qty: ${item.quantity}", modifier=Modifier.padding(8.dp))
+        Column (modifier = Modifier.weight(1f).padding(8.dp)){
+            Row{
+                Text(text = item.name, modifier=Modifier.padding(8.dp))
+                Text("Qty: ${item.quantity}", modifier=Modifier.padding(8.dp))
+
+            }
+
+            Row(modifier = Modifier.fillMaxWidth()){
+                Icon(imageVector = Icons.Default.LocationOn, contentDescription = null)
+                Text(item.address)
+            }
+
+        }
+
+
         Row(
             modifier= Modifier.padding(8.dp)
         ){
