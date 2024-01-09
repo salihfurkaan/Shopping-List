@@ -7,4 +7,4 @@ A basic shopping list application using Jetpack Compose.
 
 
 <br><br><br>
-Special thanks to Denis Panjuta!
+I created this app during my learning journey on Udemy course by Denis Panjuta
